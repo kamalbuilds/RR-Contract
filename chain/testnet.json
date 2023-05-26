@@ -1,0 +1,177 @@
+[
+    {
+      "name": "Avalanche",
+      "chainId": 43113,
+      "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
+      "gateway": "0xC249632c2D40b9001FE907806902f63038B737Ab",
+      "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
+      "tokenName": "Avax",
+      "tokenSymbol": "AVAX",
+      "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+      "AxelarGasService": {
+        "address": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6"
+      },
+      "AxelarDepositService": {
+        "salt": "AxelarDepositService",
+        "address": "0xc1DCb196BA862B337Aa23eDA1Cb9503C0801b955",
+        "implementation": "0xb6241272C569767072e0587098415DF6BA0aaEe9",
+        "deployer": "0xd55cd98cdE61c3CcE1286F9aF50cDbF16f5dba5b",
+        "wrappedSymbol": "WAVAX",
+        "refundIssuer": "0x4f671f34d2d23fec3eE3087E3A0221f8D314D9dF"
+      },
+      "GMPExpressService": {
+        "expressOperator": "0xB8Cd93C83A974649D76B1c19f311f639e62272BC",
+        "salt": "GMPExpressService",
+        "address": "0xfb72239394647e97894585D0D93Ca91f6C3852a4",
+        "implementation": "0xF58665C20eA439f1ae065ff218aC13d3f9B29F6A",
+        "deployer": "0xA57ADCE1d2fE72949E4308867D894CD7E7DE0ef2",
+        "proxyDeployer": "0xB9A86a733b55804d60cd0CbED3bCEeC96ae8B5Aa"
+      },
+      "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+      "contract": {
+        "abi": [
+          "constructor(address gateway_, address gasReceiver_)",
+          "error InvalidAddress()",
+          "error NotApprovedByGateway()",
+          "function execute(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload)",
+          "function executeWithToken(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload, string tokenSymbol, uint256 amount)",
+          "function gasService() view returns (address)",
+          "function gateway() view returns (address)",
+          "function sendToMany(string destinationChain, string destinationAddress, address[] destinationAddresses, string symbol, uint256 amount) payable"
+        ],
+        "address": "0x8b24F9805c44B505319F681130E199c97fbD58d4"
+      },
+      "usdc": {
+        "abi": [
+          "error InvalidAccount()",
+          "event Approval(address indexed owner, address indexed spender, uint256 value)",
+          "event Transfer(address indexed from, address indexed to, uint256 value)",
+          "function allowance(address owner, address spender) view returns (uint256)",
+          "function approve(address spender, uint256 amount) returns (bool)",
+          "function balanceOf(address account) view returns (uint256)",
+          "function totalSupply() view returns (uint256)",
+          "function transfer(address recipient, uint256 amount) returns (bool)",
+          "function transferFrom(address sender, address recipient, uint256 amount) returns (bool)"
+        ],
+        "address": "0x57F1c63497AEe0bE305B8852b354CEc793da43bB"
+      }
+    },
+    {
+      "name": "Fantom",
+      "chainId": 4002,
+      "gateway": "0x97837985Ec0494E7b9C71f5D3f9250188477ae14",
+      "rpc": "https://rpc.ankr.com/fantom_testnet",
+      "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
+      "tokenName": "Fantom",
+      "tokenSymbol": "FTM",
+      "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+      "AxelarGasService": {
+        "address": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6"
+      },
+      "AxelarDepositService": {
+        "salt": "AxelarDepositService",
+        "address": "0xc1DCb196BA862B337Aa23eDA1Cb9503C0801b955",
+        "implementation": "0xb6241272C569767072e0587098415DF6BA0aaEe9",
+        "deployer": "0xd55cd98cdE61c3CcE1286F9aF50cDbF16f5dba5b",
+        "wrappedSymbol": "WFTM",
+        "refundIssuer": "0x4f671f34d2d23fec3eE3087E3A0221f8D314D9dF"
+      },
+      "GMPExpressService": {
+        "expressOperator": "0xB8Cd93C83A974649D76B1c19f311f639e62272BC",
+        "proxyDeployer": "0x4D701985D65914e5265f8858F59Bd6E85D61e2F0",
+        "salt": "GMPExpressService",
+        "address": "0xfb72239394647e97894585D0D93Ca91f6C3852a4",
+        "implementation": "0x3bd58623F274d4A9806d27D4CC1ff6e840E946Df",
+        "deployer": "0xA57ADCE1d2fE72949E4308867D894CD7E7DE0ef2"
+      },
+      "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+      "contract": {
+        "abi": [
+          "constructor(address gateway_, address gasReceiver_)",
+          "error InvalidAddress()",
+          "error NotApprovedByGateway()",
+          "function execute(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload)",
+          "function executeWithToken(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload, string tokenSymbol, uint256 amount)",
+          "function gasService() view returns (address)",
+          "function gateway() view returns (address)",
+          "function sendToMany(string destinationChain, string destinationAddress, address[] destinationAddresses, string symbol, uint256 amount) payable"
+        ],
+        "address": "0xdf366B8FB6553E6F5826Ee6195cb9330A34442c1"
+      },
+      "usdc": {
+        "abi": [
+          "error InvalidAccount()",
+          "event Approval(address indexed owner, address indexed spender, uint256 value)",
+          "event Transfer(address indexed from, address indexed to, uint256 value)",
+          "function allowance(address owner, address spender) view returns (uint256)",
+          "function approve(address spender, uint256 amount) returns (bool)",
+          "function balanceOf(address account) view returns (uint256)",
+          "function totalSupply() view returns (uint256)",
+          "function transfer(address recipient, uint256 amount) returns (bool)",
+          "function transferFrom(address sender, address recipient, uint256 amount) returns (bool)"
+        ],
+        "address": "0x75Cc4fDf1ee3E781C1A3Ee9151D5c6Ce34Cf5C61"
+      }
+    },
+    {
+      "name": "Polygon",
+      "chainId": 80001,
+      "gateway": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
+      "rpc": "https://polygon-mumbai.g.alchemy.com/v2/Ksd4J1QVWaOJAJJNbr_nzTcJBJU-6uP3",
+      "constAddressDeployer": "0x98b2920d53612483f91f12ed7754e51b4a77919e",
+      "tokenName": "Matic",
+      "tokenSymbol": "MATIC",
+      "gasReceiver": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+      "AxelarGasService": {
+        "address": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6"
+      },
+      "AxelarDepositService": {
+        "salt": "AxelarDepositService",
+        "address": "0xc1DCb196BA862B337Aa23eDA1Cb9503C0801b955",
+        "implementation": "0xb6241272C569767072e0587098415DF6BA0aaEe9",
+        "deployer": "0xd55cd98cdE61c3CcE1286F9aF50cDbF16f5dba5b",
+        "wrappedSymbol": "WMATIC",
+        "refundIssuer": "0x4f671f34d2d23fec3eE3087E3A0221f8D314D9dF"
+      },
+      "GMPExpressService": {
+        "expressOperator": "0xB8Cd93C83A974649D76B1c19f311f639e62272BC",
+        "proxyDeployer": "0xDCc3B94C9fbAE6BC8bc997ed2fC1a3A40E6F3750",
+        "salt": "GMPExpressService",
+        "address": "0xfb72239394647e97894585D0D93Ca91f6C3852a4",
+        "implementation": "0x2242B16222F0a459fE3E0626Df6fdf7975cC2eb2",
+        "deployer": "0xA57ADCE1d2fE72949E4308867D894CD7E7DE0ef2"
+      },
+      "gasOptions": {
+        "gasLimit": 6000000
+      },
+      "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+      "contract": {
+        "abi": [
+          "constructor(address gateway_, address gasReceiver_)",
+          "error InvalidAddress()",
+          "error NotApprovedByGateway()",
+          "function execute(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload)",
+          "function executeWithToken(bytes32 commandId, string sourceChain, string sourceAddress, bytes payload, string tokenSymbol, uint256 amount)",
+          "function gasService() view returns (address)",
+          "function gateway() view returns (address)",
+          "function sendToMany(string destinationChain, string destinationAddress, address[] destinationAddresses, string symbol, uint256 amount) payable"
+        ],
+        "address": "0xbFDc57CE8CBCb4202826ea3c462f0a938D39d3e2"
+      },
+      "usdc": {
+        "abi": [
+          "error InvalidAccount()",
+          "event Approval(address indexed owner, address indexed spender, uint256 value)",
+          "event Transfer(address indexed from, address indexed to, uint256 value)",
+          "function allowance(address owner, address spender) view returns (uint256)",
+          "function approve(address spender, uint256 amount) returns (bool)",
+          "function balanceOf(address account) view returns (uint256)",
+          "function totalSupply() view returns (uint256)",
+          "function transfer(address recipient, uint256 amount) returns (bool)",
+          "function transferFrom(address sender, address recipient, uint256 amount) returns (bool)"
+        ],
+        "address": "0x2c852e740B62308c46DD29B982FBb650D063Bd07"
+      }
+    }
+  ]
+  
