@@ -4,6 +4,8 @@ RRDao ( DataDao) Created on the FVM Network -> https://hyperspace.filfox.info/en
 
 RR Dao Address- 0x3BFa81d2f797677Ea2f115697c2611A786C2cbCD
 
+RQ.sol implements the quadratic Voting for the Papers.
+
 ```shell
 npx hardhat help
 npx hardhat test
