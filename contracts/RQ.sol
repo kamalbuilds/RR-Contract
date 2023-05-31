@@ -9,25 +9,30 @@ contract RQ {
         string author;
         string content;
         uint256 timestamp;
-        uint256 quadraticFunding;
-        uint256 totalPositiveWeight;
-        uint256 totalNegativeWeight;
+        uint256 funding;
         bool isReproducible;
+        address payable owner;
         PaperStage stage;
+        // more than 1 owners for a paper
         mapping(address => bool) owners;
-        mapping(address => bool) hasVoted;
         address walletAddress;
+        // quad voting
+        mapping(address => uint) positiveVotes; // user => weight
+        mapping(address => uint) negativeVotes; // user => weight
+        uint totalPositiveWeight;
+        uint totalNegativeWeight;
     }
 
     mapping(uint256 => Paper) public papers;
     uint256 public paperCount;
-
+    // cost of voting
+    uint constant public voteCost = 1;
     mapping(address => bool) public members;
 
     event PaperUploaded(uint256 indexed paperId, string title, string author, uint256 timestamp, PaperStage stage);
     event PaperStageUpdated(uint256 indexed paperId, PaperStage stage);
-    event QuadraticFundingUpdated(uint256 indexed paperId, uint256 quadraticFunding);
-
+    event FundingUpdated(uint256 indexed paperId, uint256 funding);
+    event Voted(uint paperId, uint weight, bool positive);
     constructor() {
         // Add the DAO members during contract deployment
         members[msg.sender] = true;
@@ -47,29 +52,19 @@ contract RQ {
         members[member] = false;
     }
 
-    function uploadPaper(
-        string memory title,
-        string memory author,
-        string memory content,
-        uint256 quadraticFunding,
-        bool isReproducible,
-        PaperStage stage,
-        address walletAddress
-    ) external {
+    function uploadPaper(string memory title, string memory author, string memory content, uint256 funding, bool isReproducible, PaperStage stage , address walletAddress) external {
         uint256 timestamp = block.timestamp;
         uint256 paperId = paperCount + 1;
-
         Paper storage newPaper = papers[paperId];
         newPaper.title = title;
+        newPaper.owner = payable(msg.sender);
         newPaper.author = author;
         newPaper.content = content;
         newPaper.timestamp = timestamp;
+        newPaper.funding = funding;
         newPaper.isReproducible = isReproducible;
         newPaper.stage = stage;
         newPaper.walletAddress = walletAddress;
-        newPaper.quadraticFunding = quadraticFunding; // Initialize quadratic funding
-        newPaper.totalPositiveWeight = 0;
-        newPaper.totalNegativeWeight = 0;
         papers[paperId].owners[msg.sender] = true;
         paperCount++;
 
@@ -83,6 +78,15 @@ contract RQ {
         emit PaperStageUpdated(paperId, stage);
     }
 
+    function updateFunding(uint256 paperId, uint256 newFunding) external {
+        require(paperId <= paperCount, "Invalid paperId");
+        require(papers[paperId].owners[msg.sender], "You can only update funding for your own paper");
+
+        papers[paperId].funding = newFunding;
+
+        emit FundingUpdated(paperId, newFunding);
+    }
+
     function addPaperOwner(uint256 paperId, address newOwner) external onlyMembers {
         require(paperId <= paperCount, "Invalid paperId");
         papers[paperId].owners[newOwner] = true;
@@ -94,81 +98,86 @@ contract RQ {
         papers[paperId].owners[owner] = false;
     }
 
-    // Quadratic funding functions
+    // helper functions
+  function currentWeight(uint paperId, address addr, bool isPositive) public view returns(uint) {
+    if (isPositive) {
+      return papers[paperId].positiveVotes[addr];
+    } else {
+      return papers[paperId].negativeVotes[addr];
+    }
+  }
 
-    function calculateQuadraticFunding(uint256 paperId) internal {
-        Paper storage paper = papers[paperId];
-        uint256 totalWeight = paper.totalPositiveWeight + paper.totalNegativeWeight;
+  function calcCost(uint currWeight, uint weight) public pure returns(uint) {
+    if (currWeight > weight) {
+      return weight * weight * voteCost; // cost is always quadratic
+    } else if (currWeight < weight) {
+      // this allows users to save on costs if they are increasing their vote
+      // example: current weight is 3, they want to change it to 5
+      // this would cost 16x (5 * 5 - 3 * 3) instead of 25x the vote cost
+      return (weight * weight - currWeight * currWeight) * voteCost;
+    } else {
+      return 0;
+    }
+  }
+// helper fubnc end
 
-        if (totalWeight == 0) {
-            paper.quadraticFunding = 0;
-        } else {
-            uint256 quadraticFunding = (paper.totalPositiveWeight**2) / totalWeight;
-            paper.quadraticFunding = quadraticFunding;
-        }
+    function positiveVote(uint paperId, uint weight) public payable {
+    Paper storage paper = papers[paperId];
+    require(msg.sender != paper.owner); // owners cannot vote on their own papers
 
-        emit QuadraticFundingUpdated(paperId, paper.quadraticFunding);
+    uint currWeight = paper.positiveVotes[msg.sender];
+    if (currWeight == weight) {
+      return; // no need to process further if vote has not changed
     }
 
-    function distributeFunds(uint256 paperId) internal {
-        Paper storage paper = papers[paperId];
-        uint256 totalFunds = paper.quadraticFunding;
+    uint cost = calcCost(currWeight, weight);
+    require(msg.value >= cost); // msg.value must be enough to cover the cost
 
-        if (totalFunds > 0) {
-            uint256 totalWeight = paper.totalPositiveWeight + paper.totalNegativeWeight;
+    paper.positiveVotes[msg.sender] = weight;
+    paper.totalPositiveWeight += weight - currWeight;
 
-            if (totalWeight > 0) {
-                uint256 quadraticFunding = paper.quadraticFunding;
+    // weight cannot be both positive and negative simultaneously
+    paper.totalNegativeWeight -= paper.negativeVotes[msg.sender];
+    paper.negativeVotes[msg.sender] = 0;
 
-                for (uint256 i = 1; i <= paperCount; i++) {
-                    if (i != paperId) {
-                        Paper storage otherPaper = papers[i];
-                        uint256 otherWeight = otherPaper.totalPositiveWeight + otherPaper.totalNegativeWeight;
-                        uint256 funds = (quadraticFunding * (otherWeight**2)) / totalWeight**2;
-                        otherPaper.quadraticFunding += funds;
-                        totalFunds -= funds;
-                    }
-                }
-            }
+    paper.funding += msg.value; // reward creator of paper for their contribution
 
-            paper.quadraticFunding = totalFunds;
-        }
+    emit Voted(paperId, weight, true);
+  }
+
+  function negativeVote(uint paperId, uint weight) public payable {
+    Paper storage paper = papers[paperId];
+    require(msg.sender != paper.owner);
+
+    uint currWeight = paper.negativeVotes[msg.sender];
+    if (currWeight == weight) {
+      return; // no need to process further if vote has not changed
     }
 
-    function positiveVote(uint256 paperId, uint256 weight) public payable {
-        Paper storage paper = papers[paperId];
-        require(!paper.owners[msg.sender], "Paper owners cannot vote");
-        require(paper.stage == PaperStage.Approved, "Paper must be in the Approved stage for voting");
-        require(!paper.hasVoted[msg.sender], "Address has already voted on this paper");
+    uint cost = calcCost(currWeight, weight);
+    require(msg.value >= cost); // msg.value must be enough to cover the cost
 
-        paper.hasVoted[msg.sender] = true;
+    paper.negativeVotes[msg.sender] = weight;
+    paper.totalNegativeWeight += weight - currWeight;
 
-        uint256 currWeight = paper.totalPositiveWeight;
-        if (weight > currWeight) {
-            paper.quadraticFunding += (weight - currWeight) * (weight - currWeight);
-        }
+    // weight cannot be both positive and negative simultaneously
+    paper.totalPositiveWeight -= paper.positiveVotes[msg.sender];
+    paper.positiveVotes[msg.sender] = 0;
 
-        paper.totalPositiveWeight = weight;
-        calculateQuadraticFunding(paperId);
-        distributeFunds(paperId);
+    // distribute voting cost to every paper except for this one
+    uint reward = msg.value / (paperCount - 1);
+    for (uint i = 0; i < paperCount; i++) {
+      if (i != paperId) papers[i].funding += reward;
     }
 
-    function negativeVote(uint256 paperId, uint256 weight) public payable {
+    emit Voted(paperId, weight, false);
+  }
+
+    function claim(uint paperId) public {
         Paper storage paper = papers[paperId];
-        require(!paper.owners[msg.sender], "Paper owners cannot vote");
-        require(paper.stage == PaperStage.Rejected, "Paper must be in the Rejected stage for voting");
-        require(!paper.hasVoted[msg.sender], "Address has already voted on this paper");
-        require(msg.value >= weight * weight, "Insufficient funds to cover the vote cost");
-
-        paper.hasVoted[msg.sender] = true;
-
-        uint256 currWeight = paper.totalNegativeWeight;
-        if (weight > currWeight) {
-            paper.quadraticFunding += (weight - currWeight) * (weight - currWeight);
-        }
-
-        paper.totalNegativeWeight = weight;
-        calculateQuadraticFunding(paperId);
-        distributeFunds(paperId);
+        require(msg.sender == paper.owner);
+        paper.owner.transfer(paper.funding);
+        paper.funding = 0;
     }
+    
 }
